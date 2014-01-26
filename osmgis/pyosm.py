@@ -30,7 +30,7 @@ def map_streets(xml):
             nd.coord = nd_dict.get(int(nd.attrib['ref']),(np.nan,np.nan))
             coord.append(nd.coord)
         way.coord = coord
-    return ways,nodes,nd
+    return ways,nodes
 
 def distance_calc(point1,point2):
     """points are tuple of (lat,lon)"""
@@ -40,7 +40,7 @@ def distance_calc(point1,point2):
 
 def test():
     xml = osm_xml_download(-88,41)
-    ways,nodes,nd = map_streets(xml)
+    ways,nodes = map_streets(xml)
     coord = np.array(ways[0].coord)
     #plt.plot(coord[:,0],coord[:,1])
     #plt.show()
