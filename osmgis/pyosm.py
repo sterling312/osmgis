@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 import os
+import sys
 import subprocess
-from urllib2 import urlopen
+if sys.version_info.major>2:
+    from urllib.request import urlopen
+else:
+    from urllib2 import urlopen
 import numpy as np
 import matplotlib.pyplot as plt
 from lxml import html
@@ -18,7 +22,7 @@ def osm_xml_download(x1,y1,x2=None,y2=None):
 def map_streets(xml):
     osm = html.fromstring(xml)
     nodes = osm.findall('node')
-    nd_dict = {int(node.attrib['id']):map(lambda x: float(node.get(x,np.nan)),['lat','lon']) for node in nodes}
+    nd_dict = {int(node.attrib['id']):[float(node.attrib.get('lat',np.nan)),float(node.attrib.get('lon',np.nan))] for node in nodes}
     ways = osm.findall('way')
     for way in ways:
         coord = []
@@ -28,16 +32,8 @@ def map_streets(xml):
         way.coord = coord
     return ways,nodes,nd
 
-def street_normalized(input_coord,way_coord):
-    """input coord should be a list of (x,y) tuple"""
-    way = np.array(way_coord)
-    coord = np.array(input_coord)
-    arr = []
-    for point in coord:
-        arr.append((point+(point-way).mean(axis=0)).tolist())
-    return arr
-
 def distance_calc(point1,point2):
+    """points are tuple of (lat,lon)"""
     lat1,lon1 = np.radian(point1)
     lat2,lon2 = np.radian(point2)
     return float(np.cosh(np.sin(lat1)*np.sin(lat2)+np.cos(lat1)*np.cos(lat2)*np.cos(lon2-lon1))*6371)
